@@ -96,6 +96,7 @@ class DDPM(nn.Module):
 
         # double the batch
         c_i = c_i.repeat(2)
+        c_i = nn.functional.one_hot(c_i.float(), num_classes=24).type(torch.float)
         context_mask = context_mask.repeat(2)
         context_mask[n_sample:] = 1. # makes second half of batch context free
 
@@ -112,9 +113,7 @@ class DDPM(nn.Module):
 
             z = torch.randn(n_sample, *size).to(self.device) if i > 1 else 0
 
-            # split predictions and compute weighting
-            print(c_i)
-            c_i = nn.functional.one_hot(c_i.float(), num_classes=24).type(torch.float)
+            # split predictions and compute weighting            
             eps = self.nn_model(x_i, c_i, t_is, context_mask)
             eps1 = eps[:n_sample] # first part (context_mask = 0)
             eps2 = eps[n_sample:] # second part (context_mask = 1)
