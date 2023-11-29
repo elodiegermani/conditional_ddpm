@@ -9,8 +9,13 @@ import matplotlib.pyplot as plt
 from nilearn import plotting
 import numpy as np 
 import nibabel as nib
+from nilearn.plotting.cm import _cmap_d as nilearn_cmaps
+
 
 def train(config):
+
+    if not os.path.isdir(config.sample_dir):
+        os.mkdir(config.sample_dir)
 
     ddpm = DDPM(config)
 
@@ -129,11 +134,11 @@ def train(config):
                         axes=ax[int(a/24)*2, int(a%24)])
 
                     plotting.plot_glass_brain(
-                        img_xgen, 
+                        img_xreal, 
                         figure=fig, 
                         cmap=nilearn_cmaps['cold_hot'], 
                         plot_abs=False, 
-                        title='Generated',
+                        title='Real',
                         axes=ax[int(a/24)*2+1, int(a%24)])
 
                 plt.savefig(f'{config.sample_dir}/images_ep{ep}_w{w}.png')
@@ -150,6 +155,7 @@ if __name__ == "__main__":
     parser.add_argument('--dataset', type=str, default='global_dataset')
     parser.add_argument('--labels', type=str, help='conditions for generation',
                         default='pipelines')
+    parser.add_argument('--sample_dir', type=str, default='sampling directory')
 
     parser.add_argument('--mode', type=str, default='train', choices=['train', 'test'])
     parser.add_argument('--batch_size', type=int, default=32, help='mini-batch size')
