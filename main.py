@@ -74,7 +74,7 @@ def train(config):
 
         with torch.no_grad():
 
-            n_sample = 4*config.n_classes
+            n_sample = 1*config.n_classes
 
             for w_i, w in enumerate(config.ws_test):
 
