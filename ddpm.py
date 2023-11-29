@@ -96,6 +96,7 @@ class DDPM(nn.Module):
 
         # double the batch
         c_i = c_i.repeat(2)
+        print(c_i)
         c_i = nn.functional.one_hot(c_i.float(), num_classes=24).type(torch.float)
         context_mask = context_mask.repeat(2)
         context_mask[n_sample:] = 1. # makes second half of batch context free

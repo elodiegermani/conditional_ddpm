@@ -68,81 +68,81 @@ def train(config):
 
             optim.step()
 
-        print('Loss:', loss_ema)
+            print('Loss:', loss_ema)
 
-        ddpm.eval()
+            ddpm.eval()
 
-        with torch.no_grad():
+            with torch.no_grad():
 
-            n_sample = 1*config.n_classes
+                n_sample = 1*config.n_classes
 
-            for w_i, w in enumerate(config.ws_test):
+                for w_i, w in enumerate(config.ws_test):
 
-                x_gen, x_gen_store = ddpm.sample(
-                    n_sample, 
-                    (1, 48, 56, 48), 
-                    guide_w=w
-                    )
-
-                # append some real images at bottom, order by class also
-                x_real = torch.Tensor(x_gen.shape).to(ddpm.device)
-
-                for k in range(config.n_classes):
-                    for j in range(int(n_sample/config.n_classes)):
-
-                        try: 
-                            idx = torch.squeeze((c == k).nonzero())[j]
-
-                        except:
-                            idx = 0
-
-                        x_real[k+(j*n_classes)] = x[idx]
-
-                x_all = torch.cat([x_gen, x_real])
-
-                fig,ax = plt.subplots(
-                        n_row=8,
-                        n_col=24)
-
-                affine = np.array([[   4.,    0.,    0.,  -98.],
-                                       [   0.,    4.,    0., -134.],
-                                       [   0.,    0.,    4.,  -72.],
-                                       [   0.,    0.,    0.,    1.]])
-
-                for a, x_pairs in enumerate(x_all):
-
-                    img_xgen = nib.Nifti1Image(
-                        np.array(
-                            x_pairs[0].detach().cpu()
-                            )[0,0,:,:,:], 
-                        affine
+                    x_gen, x_gen_store = ddpm.sample(
+                        n_sample, 
+                        (1, 48, 56, 48), 
+                        guide_w=w
                         )
 
-                    img_xreal = nib.Nifti1Image(
-                        np.array(
-                            x_pairs[1].detach().cpu()
-                            )[0,0,:,:,:], 
-                        affine
-                        )
+                    # append some real images at bottom, order by class also
+                    x_real = torch.Tensor(x_gen.shape).to(ddpm.device)
 
-                    plotting.plot_glass_brain(
-                        img_xgen, 
-                        figure=fig, 
-                        cmap=nilearn_cmaps['cold_hot'], 
-                        plot_abs=False, 
-                        title='Generated',
-                        axes=ax[int(a/24)*2, int(a%24)])
+                    for k in range(config.n_classes):
+                        for j in range(int(n_sample/config.n_classes)):
 
-                    plotting.plot_glass_brain(
-                        img_xreal, 
-                        figure=fig, 
-                        cmap=nilearn_cmaps['cold_hot'], 
-                        plot_abs=False, 
-                        title='Real',
-                        axes=ax[int(a/24)*2+1, int(a%24)])
+                            try: 
+                                idx = torch.squeeze((c == k).nonzero())[j]
 
-                plt.savefig(f'{config.sample_dir}/images_ep{ep}_w{w}.png')
-                plt.close()
+                            except:
+                                idx = 0
+
+                            x_real[k+(j*n_classes)] = x[idx]
+
+                    x_all = torch.cat([x_gen, x_real])
+
+                    fig,ax = plt.subplots(
+                            n_row=8,
+                            n_col=24)
+
+                    affine = np.array([[   4.,    0.,    0.,  -98.],
+                                           [   0.,    4.,    0., -134.],
+                                           [   0.,    0.,    4.,  -72.],
+                                           [   0.,    0.,    0.,    1.]])
+
+                    for a, x_pairs in enumerate(x_all):
+
+                        img_xgen = nib.Nifti1Image(
+                            np.array(
+                                x_pairs[0].detach().cpu()
+                                )[0,0,:,:,:], 
+                            affine
+                            )
+
+                        img_xreal = nib.Nifti1Image(
+                            np.array(
+                                x_pairs[1].detach().cpu()
+                                )[0,0,:,:,:], 
+                            affine
+                            )
+
+                        plotting.plot_glass_brain(
+                            img_xgen, 
+                            figure=fig, 
+                            cmap=nilearn_cmaps['cold_hot'], 
+                            plot_abs=False, 
+                            title='Generated',
+                            axes=ax[int(a/24)*2, int(a%24)])
+
+                        plotting.plot_glass_brain(
+                            img_xreal, 
+                            figure=fig, 
+                            cmap=nilearn_cmaps['cold_hot'], 
+                            plot_abs=False, 
+                            title='Real',
+                            axes=ax[int(a/24)*2+1, int(a%24)])
+
+                    plt.savefig(f'{config.sample_dir}/images_ep{ep}_w{w}.png')
+                    plt.close()
 
 
 def sample(config):
