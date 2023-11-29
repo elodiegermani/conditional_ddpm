@@ -68,8 +68,8 @@ class DDPM(nn.Module):
         noise = torch.randn_like(x)  # eps ~ N(0, 1)
 
         x_t = (
-            self.sqrtab[_ts, None, None, None, None] * x
-            + self.sqrtmab[_ts, None, None, None, None] * noise
+            self.sqrtab.to(self.device)[_ts, None, None, None, None] * x
+            + self.sqrtmab.to(self.device)[_ts, None, None, None, None] * noise
         )  # This is the x_t, which is sqrt(alphabar) x_0 + sqrt(1-alphabar) * eps
         # We should predict the "error term" from this x_t. Loss is what we return.
 
