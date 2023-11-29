@@ -10,6 +10,7 @@
 #SBATCH --output=ddpm%j.out # output file name
 #SBATCH --error=ddpm%j.err  # error file name
 #SBATCH --qos=qos_gpu-t4
+#SBATCH --partition=gpu_p4
 
 source /gpfswork/rech/gft/umh25bv/miniconda3/bin/activate /gpfswork/rech/gft/umh25bv/miniconda3/envs/workEnv
 
