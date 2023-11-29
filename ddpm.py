@@ -1,5 +1,4 @@
 from typing import Dict, Tuple
-from tqdm import tqdm
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
