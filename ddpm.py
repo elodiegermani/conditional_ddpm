@@ -89,6 +89,7 @@ class DDPM(nn.Module):
 
         x_i = torch.randn(n_sample, *size).to(self.device)  # x_T ~ N(0, 1), sample initial noise
         c_i = torch.arange(0,24) # context for us just cycles throught the labels
+        c_i = nn.functional.one_hot(c_i.float(), num_classes=24).to(self.device)
         c_i = c_i.repeat(int(n_sample/c_i.shape[0]))
 
         # don't drop context at test time
@@ -97,7 +98,6 @@ class DDPM(nn.Module):
         # double the batch
         c_i = c_i.repeat(2)
 
-        c_i_vect = nn.functional.one_hot(c_i.float(), num_classes=24).to(self.device)
         context_mask = context_mask.repeat(2)
         context_mask[n_sample:] = 1. # makes second half of batch context free
 
