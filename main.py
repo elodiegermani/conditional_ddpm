@@ -96,7 +96,7 @@ def train(config):
                             except:
                                 idx = 0
 
-                            x_real[k+(j*config,n_classes)] = x[idx]
+                            x_real[k+(j*config.n_classes)] = x[idx]
 
                     x_all = torch.cat([x_gen, x_real])
 
