@@ -115,7 +115,7 @@ class DDPM(nn.Module):
             z = torch.randn(n_sample, *size).to(self.device) if i > 1 else 0
 
             # split predictions and compute weighting            
-            eps = self.nn_model(x_i, c_i_vect, t_is, context_mask)
+            eps = self.nn_model(x_i, c_i, t_is, context_mask)
             eps1 = eps[:n_sample] # first part (context_mask = 0)
             eps2 = eps[n_sample:] # second part (context_mask = 1)
             eps = (1+guide_w)*eps1 - guide_w*eps2 # mix output: context mask off and context mask on
