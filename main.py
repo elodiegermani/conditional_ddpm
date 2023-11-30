@@ -99,7 +99,6 @@ def train(config):
                             x_real[k+(j*config.n_classes)] = x[idx]
 
                     x_all = torch.cat([x_gen, x_real])
-                    print(x_all.shape)
 
                     fig,ax = plt.subplots(
                             nrows=8,
@@ -110,19 +109,18 @@ def train(config):
                                            [   0.,    0.,    4.,  -72.],
                                            [   0.,    0.,    0.,    1.]])
 
-                    for a, x_pairs in enumerate(x_all):
-                        print(x_pairs[0], x_pairs[1])
+                    for n in range(config.n_classes):
 
                         img_xgen = nib.Nifti1Image(
                             np.array(
-                                x_pairs[0].detach().cpu()
+                                x_pairs[n].detach().cpu()
                                 )[:,:,:], 
                             affine
                             )
 
                         img_xreal = nib.Nifti1Image(
                             np.array(
-                                x_pairs[1].detach().cpu()
+                                x_pairs[2*n].detach().cpu()
                                 )[:,:,:], 
                             affine
                             )
