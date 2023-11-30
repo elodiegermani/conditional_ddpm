@@ -88,24 +88,18 @@ class DDPM(nn.Module):
         # where w>0 means more guidance
 
         x_i = torch.randn(n_sample, *size).to(self.device)  # x_T ~ N(0, 1), sample initial noise
-        #c_i = torch.arange(0,24).type(torch.int) # context for us just cycles throught the labels
-        c_i = torch.zeros(24).to(self.device)
-        c_i = c_i.repeat(24,1)
-
-        for i in range(24):
-            c_i[i,i]=1
+        c_i = torch.arange(0,24).to(self.device) # context for us just cycles throught the labels
+        c_i = c_i.repeat(int(n_sample/c_i.shape[0]))
 
         #c_i = nn.functional.one_hot(c_i, num_classes=24).to(self.device)
-        c_i = c_i.repeat(int(n_sample/c_i.shape[0]),1)
 
         # don't drop context at test time
-        context_mask = torch.zeros(c_i.shape[0],1).to(self.device)
+        context_mask = torch.zeros_like(c_i).to(device)
 
         # double the batch
-        c_i = c_i.repeat(2,1)
-
-        context_mask = context_mask.repeat(2,1)
-        context_mask[n_sample:] = 1. # makes second half of batch context free
+        c_i = c_i.repeat(2)
+        context_mask = context_mask.repeat(2)
+        context_mask[n_sample:] = 1.
 
         x_i_store = [] # keep track of generated steps in case want to plot something 
 
@@ -120,7 +114,9 @@ class DDPM(nn.Module):
 
             z = torch.randn(n_sample, *size).to(self.device) if i > 1 else 0
 
-            # split predictions and compute weighting            
+            # split predictions and compute weighting  
+            ci_vect = nn.functional.one_hot(c_i, num_classes=24).to(self.device)    
+                  
             eps = self.nn_model(x_i, c_i, t_is, context_mask)
             eps1 = eps[:n_sample] # first part (context_mask = 0)
             eps2 = eps[n_sample:] # second part (context_mask = 1)
