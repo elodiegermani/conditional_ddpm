@@ -113,14 +113,14 @@ def train(config):
 
                         img_xgen = nib.Nifti1Image(
                             np.array(
-                                x_pairs[n].detach().cpu()
+                                x_all[n].detach().cpu()
                                 )[:,:,:], 
                             affine
                             )
 
                         img_xreal = nib.Nifti1Image(
                             np.array(
-                                x_pairs[2*n].detach().cpu()
+                                x_all[2*n].detach().cpu()
                                 )[:,:,:], 
                             affine
                             )
