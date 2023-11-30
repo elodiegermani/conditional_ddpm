@@ -110,6 +110,7 @@ def train(config):
                                            [   0.,    0.,    0.,    1.]])
 
                     for a, x_pairs in enumerate(x_all):
+                        print(x_pairs[0], x_pairs[1])
 
                         img_xgen = nib.Nifti1Image(
                             np.array(
