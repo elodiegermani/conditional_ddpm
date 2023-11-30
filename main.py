@@ -109,7 +109,7 @@ def train(config):
                                            [   0.,    0.,    4.,  -72.],
                                            [   0.,    0.,    0.,    1.]])
 
-                    for n in range(config.n_classes):
+                    for n in range(n_sample):
 
                         img_xgen = nib.Nifti1Image(
                             np.array(
@@ -120,7 +120,7 @@ def train(config):
 
                         img_xreal = nib.Nifti1Image(
                             np.array(
-                                x_all[2*n].detach().cpu()
+                                x_all[n_sample + n].detach().cpu()
                                 )[:,:,:], 
                             affine
                             )
@@ -131,7 +131,7 @@ def train(config):
                             cmap=nilearn_cmaps['cold_hot'], 
                             plot_abs=False, 
                             title='Generated',
-                            axes=ax[int(a/24)*2, int(a%24)])
+                            axes=ax[0, n])
 
                         plotting.plot_glass_brain(
                             img_xreal, 
@@ -139,7 +139,7 @@ def train(config):
                             cmap=nilearn_cmaps['cold_hot'], 
                             plot_abs=False, 
                             title='Real',
-                            axes=ax[int(a/24)*2+1, int(a%24)])
+                            axes=ax[1, n])
 
                     plt.savefig(f'{config.sample_dir}/images_ep{ep}_w{w}.png')
                     plt.close()
