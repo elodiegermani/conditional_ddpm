@@ -101,8 +101,8 @@ def train(config):
                     x_all = torch.cat([x_gen, x_real])
 
                     fig,ax = plt.subplots(
-                            n_row=8,
-                            n_col=24)
+                            n_rows=8,
+                            n_cols=24)
 
                     affine = np.array([[   4.,    0.,    0.,  -98.],
                                            [   0.,    4.,    0., -134.],
