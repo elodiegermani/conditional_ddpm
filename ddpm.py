@@ -94,7 +94,7 @@ class DDPM(nn.Module):
         #c_i = nn.functional.one_hot(c_i, num_classes=24).to(self.device)
 
         # don't drop context at test time
-        context_mask = torch.zeros_like(c_i).to(device)
+        context_mask = torch.zeros_like(c_i).to(self.device)
 
         # double the batch
         c_i = c_i.repeat(2)
@@ -116,7 +116,7 @@ class DDPM(nn.Module):
 
             # split predictions and compute weighting  
             ci_vect = nn.functional.one_hot(c_i, num_classes=24).to(self.device)    
-                  
+
             eps = self.nn_model(x_i, c_i, t_is, context_mask)
             eps1 = eps[:n_sample] # first part (context_mask = 0)
             eps2 = eps[n_sample:] # second part (context_mask = 1)
