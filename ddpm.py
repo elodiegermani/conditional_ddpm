@@ -117,7 +117,7 @@ class DDPM(nn.Module):
             # split predictions and compute weighting  
             ci_vect = nn.functional.one_hot(c_i, num_classes=24).to(self.device)    
 
-            eps = self.nn_model(x_i, ci_vect, t_is, context_mask)
+            eps = self.nn_model(x_i.float(), ci_vect.float(), t_is.float(), context_mask.float())
             eps1 = eps[:n_sample] # first part (context_mask = 0)
             eps2 = eps[n_sample:] # second part (context_mask = 1)
             eps = (1+guide_w)*eps1 - guide_w*eps2 # mix output: context mask off and context mask on
