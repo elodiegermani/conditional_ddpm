@@ -99,6 +99,7 @@ def train(config):
                             x_real[k+(j*config.n_classes)] = x[idx]
 
                     x_all = torch.cat([x_gen, x_real])
+                    print(x_all.shape)
 
                     fig,ax = plt.subplots(
                             nrows=8,
