@@ -91,7 +91,7 @@ def train(config):
                         for j in range(int(n_sample/config.n_classes)):
 
                             try: 
-                                idx = torch.squeeze((c == k).nonzero())[j]
+                                idx = torch.squeeze((torch.argmax(c,dim=1) == k).nonzero())[j]
 
                             except:
                                 idx = 0
