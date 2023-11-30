@@ -16,5 +16,5 @@ source /gpfswork/rech/gft/umh25bv/miniconda3/bin/activate /gpfswork/rech/gft/umh
 
 /gpfswork/rech/gft/umh25bv/miniconda3/envs/workEnv/bin/python3 -u /gpfswork/rech/gft/umh25bv/conditional_ddpm/main.py \
    --mode train --dataset dataset_rh-jeanzay --labels pipelines \
-   --batch_size 4 --data_dir data \
+   --batch_size 8 --data_dir data \
    --n_epoch 100 --lrate 1e-4 --sample_dir samples
