@@ -88,17 +88,23 @@ class DDPM(nn.Module):
         # where w>0 means more guidance
 
         x_i = torch.randn(n_sample, *size).to(self.device)  # x_T ~ N(0, 1), sample initial noise
-        c_i = torch.arange(0,24).type(torch.int) # context for us just cycles throught the labels
-        c_i = nn.functional.one_hot(c_i, num_classes=24).to(self.device)
-        c_i = c_i.repeat(int(n_sample/c_i.shape[0]))
+        #c_i = torch.arange(0,24).type(torch.int) # context for us just cycles throught the labels
+        c_i = torch.zeros(24).to(self.device)
+        c_i = c_i.repeat(24,1)
+
+        for i in range(24):
+            c_i[i,i]=1
+
+        #c_i = nn.functional.one_hot(c_i, num_classes=24).to(self.device)
+        c_i = c_i.repeat(int(n_sample/c_i.shape[0]),1)
 
         # don't drop context at test time
-        context_mask = torch.zeros_like(c_i).to(self.device)
+        context_mask = torch.zeros(c_i.shape[0],1).to(self.device)
 
         # double the batch
-        c_i = c_i.repeat(2)
+        c_i = c_i.repeat(2,1)
 
-        context_mask = context_mask.repeat(2)
+        context_mask = context_mask.repeat(2,1)
         context_mask[n_sample:] = 1. # makes second half of batch context free
 
         x_i_store = [] # keep track of generated steps in case want to plot something 
