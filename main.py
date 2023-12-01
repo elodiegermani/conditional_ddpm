@@ -16,6 +16,8 @@ def train(config):
 
     if not os.path.isdir(config.sample_dir):
         os.mkdir(config.sample_dir)
+    if not os.path.isdir(config.save_dir):
+        os.mkdir(config.save_dir)
 
     ddpm = DDPM(config)
 
@@ -146,6 +148,9 @@ def train(config):
                 plt.savefig(f'{config.sample_dir}/images_ep{ep}_w{w}.png')
                 plt.close()
 
+        if ep%10==0:
+            torch.save(ddpm.state_dict(), config.save_dir + f"model_{ep}.pth")
+
 
 def sample(config):
     print('Hello')
@@ -158,6 +163,7 @@ if __name__ == "__main__":
     parser.add_argument('--labels', type=str, help='conditions for generation',
                         default='pipelines')
     parser.add_argument('--sample_dir', type=str, default='sampling directory')
+    parser.add_argument('--save_dir', type=str, default='save directory')
 
     parser.add_argument('--mode', type=str, default='train', choices=['train', 'test'])
     parser.add_argument('--batch_size', type=int, default=32, help='mini-batch size')
