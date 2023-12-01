@@ -165,7 +165,7 @@ def sample(config):
         )
 
     # Data loader. 
-    dataset_file = f'{config.data_dir}/{config.mode}-{config.dataset}.csv'
+    dataset_file = f'{config.data_dir}/valid-{config.dataset}.csv'
 
     dataset = ClassifDataset(
         dataset_file, 
