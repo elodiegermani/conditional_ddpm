@@ -257,7 +257,7 @@ def sample(config):
                     display_mode = 'z')
 
             fig.tight_layout()
-            plt.savefig(f'{config.sample_dir}/test-images_ep{ep}_w{w}.png')
+            plt.savefig(f'{config.sample_dir}/test-images_ep{config.test_iter}_w{w}.png')
             plt.close()
 
 
