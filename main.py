@@ -146,7 +146,6 @@ def train(config):
                         axes=ax[1, n],
                         display_mode = 'z')
 
-                fig.tight_layout()
                 plt.savefig(f'{config.sample_dir}/images_ep{ep}_w{w}.png')
                 plt.close()
 
@@ -256,7 +255,6 @@ def sample(config):
                     axes=ax[1, n],
                     display_mode = 'z')
 
-            fig.tight_layout()
             plt.savefig(f'{config.sample_dir}/test-images_ep{config.test_iter}_w{w}.png')
             plt.close()
 
