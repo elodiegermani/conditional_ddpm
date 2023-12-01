@@ -200,14 +200,7 @@ def sample(config):
 
             for k in range(config.n_classes):
                 for j in range(int(n_sample/config.n_classes)):
-
-                    try: 
-                        idx = torch.squeeze((torch.argmax(c,dim=1) == k).nonzero())[j]
-
-                    except:
-                        idx = 0
-
-                    x_real[k+(j*config.n_classes)] = x[idx]
+                    x_real[k+(j*config.n_classes)] = x[k]
 
             x_all = torch.cat([x_gen, x_real])
 
