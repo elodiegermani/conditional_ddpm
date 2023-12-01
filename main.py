@@ -134,7 +134,8 @@ def train(config):
                         cmap=nilearn_cmaps['cold_hot'], 
                         plot_abs=False, 
                         title='Generated',
-                        axes=ax[0, n])
+                        axes=ax[0, n],
+                        display_mode = 'z')
 
                     plotting.plot_glass_brain(
                         img_xreal, 
@@ -142,18 +143,124 @@ def train(config):
                         cmap=nilearn_cmaps['cold_hot'], 
                         plot_abs=False, 
                         title='Real',
-                        axes=ax[1, n])
+                        axes=ax[1, n],
+                        display_mode = 'z')
 
                 fig.tight_layout()
                 plt.savefig(f'{config.sample_dir}/images_ep{ep}_w{w}.png')
                 plt.close()
 
         if ep%10==0:
-            torch.save(ddpm.state_dict(), config.save_dir + f"model_{ep}.pth")
+            torch.save(ddpm.state_dict(), config.save_dir + f"/model_{ep}.pth")
 
 
 def sample(config):
     print('Hello')
+    ddpm = DDPM(config)
+    ddpm.load_state_dict(
+        torch.load(
+            config.save_dir + f"/model_{config.test_iter}.pth", 
+            map_location=torch.device('cpu')
+            )
+        )
+
+    # Data loader. 
+    dataset_file = f'{config.data_dir}/{config.mode}-{config.dataset}.csv'
+
+    dataset = ClassifDataset(
+        dataset_file, 
+        config.labels)
+
+    print(f'Dataset {config.dataset}: \n {len(dataset)} images.')
+
+
+    loader = DataLoader(
+        dataset, 
+        batch_size=config.batch_size, 
+        shuffle=False, 
+        )
+
+    x,c = next(iter(loader))
+
+    ddpm.eval()
+
+    with torch.no_grad():
+
+        n_sample = 1*config.n_classes
+
+        for w_i, w in enumerate(config.ws_test):
+
+            x_gen, x_gen_store = ddpm.sample(
+                n_sample, 
+                (1, 48, 56, 48), 
+                guide_w=w
+                )
+
+            # append some real images at bottom, order by class also
+            x_real = torch.Tensor(x_gen.shape).to(ddpm.device)
+
+            for k in range(config.n_classes):
+                for j in range(int(n_sample/config.n_classes)):
+
+                    try: 
+                        idx = torch.squeeze((torch.argmax(c,dim=1) == k).nonzero())[j]
+
+                    except:
+                        idx = 0
+
+                    x_real[k+(j*config.n_classes)] = x[idx]
+
+            x_all = torch.cat([x_gen, x_real])
+
+            fig,ax = plt.subplots(
+                    nrows=2,
+                    ncols=24,
+                    figsize=(88, 30))
+
+            affine = np.array([[   4.,    0.,    0.,  -98.],
+                                   [   0.,    4.,    0., -134.],
+                                   [   0.,    0.,    4.,  -72.],
+                                   [   0.,    0.,    0.,    1.]])
+
+            for n in range(n_sample):
+
+                img_xgen = nib.Nifti1Image(
+                    np.array(
+                        x_all[n].detach().cpu()
+                        )[0,:,:,:], 
+                    affine
+                    )
+
+                img_xreal = nib.Nifti1Image(
+                    np.array(
+                        x_all[n_sample + n].detach().cpu()
+                        )[0,:,:,:], 
+                    affine
+                    )
+
+                plotting.plot_glass_brain(
+                    img_xgen, 
+                    figure=fig, 
+                    cmap=nilearn_cmaps['cold_hot'], 
+                    plot_abs=False, 
+                    title='Generated',
+                    axes=ax[0, n],
+                    display_mode = 'z')
+
+                plotting.plot_glass_brain(
+                    img_xreal, 
+                    figure=fig, 
+                    cmap=nilearn_cmaps['cold_hot'], 
+                    plot_abs=False, 
+                    title='Real',
+                    axes=ax[1, n],
+                    display_mode = 'z')
+
+            fig.tight_layout()
+            plt.savefig(f'{config.sample_dir}/test-images_ep{ep}_w{w}.png')
+            plt.close()
+
+
         
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -175,6 +282,7 @@ if __name__ == "__main__":
     parser.add_argument('--n_T', type=int, default=500, help='number T')
     parser.add_argument('--drop_prob', type=float, default=0.1, help='probability drop')
     parser.add_argument('--ws_test', type=list, default=[0.0, 0.5, 2.0], help='weight strengh for sampling')
+    parser.add_argument('--test_iter', type=int, default=10, help='epoch of model to test')
 
     config = parser.parse_args()
 
