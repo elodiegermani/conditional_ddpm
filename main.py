@@ -68,7 +68,7 @@ def train(config):
 
             optim.step()
 
-            print('Loss:', loss_ema)
+        print('Loss:', loss_ema)
 
         ddpm.eval()
 
@@ -101,8 +101,9 @@ def train(config):
                 x_all = torch.cat([x_gen, x_real])
 
                 fig,ax = plt.subplots(
-                        nrows=8,
-                        ncols=24)
+                        nrows=2,
+                        ncols=24,
+                        figsize=(88, 30))
 
                 affine = np.array([[   4.,    0.,    0.,  -98.],
                                        [   0.,    4.,    0., -134.],
@@ -141,6 +142,7 @@ def train(config):
                         title='Real',
                         axes=ax[1, n])
 
+                fig.tight_layout()
                 plt.savefig(f'{config.sample_dir}/images_ep{ep}_w{w}.png')
                 plt.close()
 
