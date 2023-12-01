@@ -160,7 +160,7 @@ def sample(config):
     ddpm.load_state_dict(
         torch.load(
             config.save_dir + f"/model_{config.test_iter}.pth", 
-            map_location=torch.device('cpu')
+            map_location=ddpm.device
             )
         )
 
