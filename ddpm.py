@@ -48,6 +48,7 @@ class DDPM(nn.Module):
         self.betas = config.beta 
         self.n_T = config.n_T
         self.drop_prob = config.drop_prob
+        self.n_classes = config.n_classes
 
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         self.nn_model.to(self.device)
@@ -88,7 +89,7 @@ class DDPM(nn.Module):
         # where w>0 means more guidance
 
         x_i = torch.randn(n_sample, *size).to(self.device)  # x_T ~ N(0, 1), sample initial noise
-        c_i = torch.arange(0,24).to(self.device) # context for us just cycles throught the labels
+        c_i = torch.arange(0,self.n_classes).to(self.device) # context for us just cycles throught the labels
         c_i = c_i.repeat(int(n_sample/c_i.shape[0]))
 
         #c_i = nn.functional.one_hot(c_i, num_classes=24).to(self.device)
@@ -115,7 +116,7 @@ class DDPM(nn.Module):
             z = torch.randn(n_sample, *size).to(self.device) if i > 1 else 0
 
             # split predictions and compute weighting  
-            ci_vect = nn.functional.one_hot(c_i, num_classes=24).to(self.device)    
+            ci_vect = nn.functional.one_hot(c_i, num_classes=config.n_classes).to(self.device)    
 
             eps = self.nn_model(x_i.float(), ci_vect.float(), t_is.float(), context_mask.float())
             eps1 = eps[:n_sample] # first part (context_mask = 0)

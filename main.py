@@ -105,13 +105,13 @@ def train(config):
 
                     fig,ax = plt.subplots(
                             nrows=2,
-                            ncols=24,
-                            figsize=(88, 20))
+                            ncols=config.n_classes,
+                            figsize=(config.n_classes*3, 10))
 
                     affine = np.array([[   4.,    0.,    0.,  -98.],
-                                           [   0.,    4.,    0., -134.],
-                                           [   0.,    0.,    4.,  -72.],
-                                           [   0.,    0.,    0.,    1.]])
+                                       [   0.,    4.,    0., -134.],
+                                       [   0.,    0.,    4.,  -72.],
+                                       [   0.,    0.,    0.,    1.]])
 
                     for n in range(n_sample):
 
@@ -205,8 +205,8 @@ def sample(config):
 
             fig,ax = plt.subplots(
                     nrows=2,
-                    ncols=24,
-                    figsize=(88, 20))
+                    ncols=config.n_classes,
+                    figsize=(config.n_classes*2, 10))
 
             affine = np.array([[   4.,    0.,    0.,  -98.],
                                    [   0.,    4.,    0., -134.],
