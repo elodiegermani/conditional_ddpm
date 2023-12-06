@@ -72,89 +72,88 @@ def train(config):
 
         print('Loss:', loss_ema)
 
-        ddpm.eval()
-
-        with torch.no_grad():
-
-            n_sample = 1*config.n_classes
-
-            for w_i, w in enumerate(config.ws_test):
-
-                x_gen, x_gen_store = ddpm.sample(
-                    n_sample, 
-                    (1, 48, 56, 48), 
-                    guide_w=w
-                    )
-
-                # append some real images at bottom, order by class also
-                x_real = torch.Tensor(x_gen.shape).to(ddpm.device)
-
-                for k in range(config.n_classes):
-                    for j in range(int(n_sample/config.n_classes)):
-
-                        try: 
-                            idx = torch.squeeze((torch.argmax(c,dim=1) == k).nonzero())[j]
-
-                        except:
-                            idx = 0
-
-                        x_real[k+(j*config.n_classes)] = x[idx]
-
-                x_all = torch.cat([x_gen, x_real])
-
-                fig,ax = plt.subplots(
-                        nrows=2,
-                        ncols=24,
-                        figsize=(88, 30))
-
-                affine = np.array([[   4.,    0.,    0.,  -98.],
-                                       [   0.,    4.,    0., -134.],
-                                       [   0.,    0.,    4.,  -72.],
-                                       [   0.,    0.,    0.,    1.]])
-
-                for n in range(n_sample):
-
-                    img_xgen = nib.Nifti1Image(
-                        np.array(
-                            x_all[n].detach().cpu()
-                            )[0,:,:,:], 
-                        affine
-                        )
-
-                    img_xreal = nib.Nifti1Image(
-                        np.array(
-                            x_all[n_sample + n].detach().cpu()
-                            )[0,:,:,:], 
-                        affine
-                        )
-
-                    plotting.plot_glass_brain(
-                        img_xgen, 
-                        figure=fig, 
-                        cmap=nilearn_cmaps['cold_hot'], 
-                        plot_abs=False, 
-                        title='Generated',
-                        axes=ax[0, n],
-                        display_mode = 'z')
-
-                    plotting.plot_glass_brain(
-                        img_xreal, 
-                        figure=fig, 
-                        cmap=nilearn_cmaps['cold_hot'], 
-                        plot_abs=False, 
-                        title='Real',
-                        axes=ax[1, n],
-                        display_mode = 'z')
-
-                plt.savefig(f'{config.sample_dir}/images_ep{ep}_w{w}.png')
-                plt.close()
-
         if ep%10==0:
+            ddpm.eval()
+
+            with torch.no_grad():
+
+                n_sample = 1*config.n_classes
+
+                for w_i, w in enumerate(config.ws_test):
+
+                    x_gen, x_gen_store = ddpm.sample(
+                        n_sample, 
+                        (1, 48, 56, 48), 
+                        guide_w=w
+                        )
+
+                    # append some real images at bottom, order by class also
+                    x_real = torch.Tensor(x_gen.shape).to(ddpm.device)
+
+                    for k in range(config.n_classes):
+                        for j in range(int(n_sample/config.n_classes)):
+
+                            try: 
+                                idx = torch.squeeze((torch.argmax(c,dim=1) == k).nonzero())[j]
+
+                            except:
+                                idx = 0
+
+                            x_real[k+(j*config.n_classes)] = x[idx]
+
+                    x_all = torch.cat([x_gen, x_real])
+
+                    fig,ax = plt.subplots(
+                            nrows=2,
+                            ncols=24,
+                            figsize=(88, 20))
+
+                    affine = np.array([[   4.,    0.,    0.,  -98.],
+                                           [   0.,    4.,    0., -134.],
+                                           [   0.,    0.,    4.,  -72.],
+                                           [   0.,    0.,    0.,    1.]])
+
+                    for n in range(n_sample):
+
+                        img_xgen = nib.Nifti1Image(
+                            np.array(
+                                x_all[n].detach().cpu()
+                                )[0,:,:,:], 
+                            affine
+                            )
+
+                        img_xreal = nib.Nifti1Image(
+                            np.array(
+                                x_all[n_sample + n].detach().cpu()
+                                )[0,:,:,:], 
+                            affine
+                            )
+
+                        plotting.plot_glass_brain(
+                            img_xgen, 
+                            figure=fig, 
+                            cmap=nilearn_cmaps['cold_hot'], 
+                            plot_abs=False, 
+                            title='Generated',
+                            axes=ax[0, n],
+                            display_mode = 'z')
+
+                        plotting.plot_glass_brain(
+                            img_xreal, 
+                            figure=fig, 
+                            cmap=nilearn_cmaps['cold_hot'], 
+                            plot_abs=False, 
+                            title='Real',
+                            axes=ax[1, n],
+                            display_mode = 'z')
+
+                    plt.savefig(f'{config.sample_dir}/images_ep{ep}_w{w}.png')
+                    plt.close()
+
             torch.save(ddpm.state_dict(), config.save_dir + f"/model_{ep}.pth")
 
 
 def sample(config):
-    print('Hello')
     ddpm = DDPM(config)
     ddpm.load_state_dict(
         torch.load(
@@ -207,7 +206,7 @@ def sample(config):
             fig,ax = plt.subplots(
                     nrows=2,
                     ncols=24,
-                    figsize=(88, 30))
+                    figsize=(88, 20))
 
             affine = np.array([[   4.,    0.,    0.,  -98.],
                                    [   0.,    4.,    0., -134.],
