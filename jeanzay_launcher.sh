@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=ddpm # nom du job
+#SBATCH --job-name=ddpm-4class # nom du job
 #SBATCH --ntasks=1                   # number of MP tasks
 #SBATCH --ntasks-per-node=1          # number of MPI tasks per node
 #SBATCH --gres=gpu:1                 # number of GPUs per node
