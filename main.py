@@ -293,8 +293,6 @@ def transfer(config):
 
             c_t = torch.Tensor(c_r[i:i+1,:])
 
-            print(c_t)
-
             for w_i, w in enumerate(config.ws_test):
 
                 x_gen = ddpm.transfer(
@@ -360,6 +358,9 @@ def transfer(config):
                     title='Target',
                     axes=ax[2],
                     display_mode = 'z')
+
+                c_idx = torch.argmax(c, dim=1)
+                c_t_idx = torch.argmax(c_t, dim=1)
 
                 plt.savefig(f'{config.sample_dir}/test-images_ep{config.test_iter}_w{w}-orig_{c}-target_{c_t}.png')
                 plt.close()
