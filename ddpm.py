@@ -163,8 +163,8 @@ class DDPM(nn.Module):
             noise = torch.randn_like(x_i)  # eps ~ N(0, 1)
 
             x_t = (
-                self.sqrtab.to(self.device)[i, 1, 1, 1, 1] * x_i
-                + self.sqrtmab.to(self.device)[i, 1, 1, 1, 1] * noise
+                self.sqrtab.to(self.device)[i] * x_i
+                + self.sqrtmab.to(self.device)[i] * noise
             )
 
             # double batch
