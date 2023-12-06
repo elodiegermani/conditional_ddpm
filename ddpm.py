@@ -186,8 +186,8 @@ class DDPM(nn.Module):
                 + self.sqrt_beta_t[i] * z
             ) 
             
-            if i%20==0 or i==self.n_T or i<8:
-                x_t_store.append(x_t.detach().cpu().numpy())
+            # if i%20==0 or i==self.n_T or i<8:
+            #     x_t_store.append(x_t.detach().cpu().numpy())
         
-        x_t_store = np.array(x_t_store)
-        return x_t, x_t_store
+        #x_t_store = np.array(x_t_store)
+        return x_t#, x_t_store

@@ -282,10 +282,8 @@ def transfer(config):
         )
 
     x,c = next(iter(source_loader))
-    print(x, c)
 
     x_r,c_r = next(iter(target_loader))
-    print(x_r, c_r)
 
     ddpm.eval()
 
@@ -299,7 +297,7 @@ def transfer(config):
 
             for w_i, w in enumerate(config.ws_test):
 
-                x_gen, x_gen_store = ddpm.transfer(
+                x_gen = ddpm.transfer(
                     x, 
                     c_t, 
                     guide_w=w
