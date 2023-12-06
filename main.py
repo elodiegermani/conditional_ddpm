@@ -293,7 +293,7 @@ def transfer(config):
 
         for i in range(config.n_classes):
 
-            c_t = torch.Tensor(1, *c_r[i,:])
+            c_t = torch.Tensor(c_r[i:i+1,:])
 
             for w_i, w in enumerate(config.ws_test):
 
