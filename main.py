@@ -359,10 +359,10 @@ def transfer(config):
                     axes=ax[2],
                     display_mode = 'z')
 
-                c_idx = torch.argmax(c, dim=1)
-                c_t_idx = torch.argmax(c_t, dim=1)
+                c_idx = torch.argmax(c, dim=1)[0]
+                c_t_idx = torch.argmax(c_t, dim=1)[0]
 
-                plt.savefig(f'{config.sample_dir}/test-images_ep{config.test_iter}_w{w}-orig_{c}-target_{c_t}.png')
+                plt.savefig(f'{config.sample_dir}/test-images_ep{config.test_iter}_w{w}-orig_{c_idx}-target_{c_t_idx}.png')
                 plt.close()
 
         
