@@ -116,7 +116,7 @@ class DDPM(nn.Module):
             z = torch.randn(n_sample, *size).to(self.device) if i > 1 else 0
 
             # split predictions and compute weighting  
-            ci_vect = nn.functional.one_hot(c_i, num_classes=config.n_classes).to(self.device)    
+            ci_vect = nn.functional.one_hot(c_i, num_classes=self.n_classes).to(self.device)    
 
             eps = self.nn_model(x_i.float(), ci_vect.float(), t_is.float(), context_mask.float())
             eps1 = eps[:n_sample] # first part (context_mask = 0)
