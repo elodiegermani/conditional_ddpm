@@ -150,7 +150,7 @@ class DDPM(nn.Module):
         # double the batch
         c_t = c_t.repeat(2)
         context_mask = context_mask.repeat(2)
-        context_mask[n_sample:] = 1.
+        context_mask[1:] = 1.
 
         x_t_store = [] # keep track of generated steps in case want to plot something 
 
@@ -177,10 +177,10 @@ class DDPM(nn.Module):
             ct_vect = nn.functional.one_hot(c_t, num_classes=self.n_classes).to(self.device)    
 
             eps = self.nn_model(x_t.float(), ct_vect.float(), t_is.float(), context_mask.float())
-            eps1 = eps[:n_sample] # first part (context_mask = 0)
-            eps2 = eps[n_sample:] # second part (context_mask = 1)
+            eps1 = eps[:1] # first part (context_mask = 0)
+            eps2 = eps[1:] # second part (context_mask = 1)
             eps = (1+guide_w)*eps1 - guide_w*eps2 # mix output: context mask off and context mask on
-            x_t = x_t[:n_sample] # Keep half of the samples 
+            x_t = x_t[:1] # Keep half of the samples 
             x_t = (
                 self.oneover_sqrta[i] * (x_t - eps * self.mab_over_sqrtmab[i])
                 + self.sqrt_beta_t[i] * z
