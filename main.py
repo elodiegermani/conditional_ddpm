@@ -316,21 +316,21 @@ def transfer(config):
                 img_xgen = nib.Nifti1Image(
                     np.array(
                         x_gen.detach().cpu()
-                        )[0,:,:,:], 
+                        )[0,0,:,:,:], 
                     affine
                     )
 
                 img_xreal = nib.Nifti1Image(
                     np.array(
                         x_r.detach().cpu()
-                        )[i,:,:,:], 
+                        )[i,0,:,:,:], 
                     affine
                     )
 
                 img_xsrc = nib.Nifti1Image(
                     np.array(
                         x.detach().cpu()
-                        )[0,:,:,:], 
+                        )[0,0,:,:,:], 
                     affine
                     )
 
