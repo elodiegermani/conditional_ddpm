@@ -142,7 +142,7 @@ class DDPM(nn.Module):
         # where w>0 means more guidance
 
         x_i = source.to(self.device)  # x_T ~ N(0, 1), sample initial noise
-        c_t = c_t.to(self.device) # Target class
+        c_t = torch.argmax(c_t, dim=1).to(self.device) # Target class
 
         # don't drop context at test time
         context_mask = torch.zeros_like(c_t).to(self.device)

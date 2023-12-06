@@ -295,6 +295,8 @@ def transfer(config):
 
             c_t = torch.Tensor(c_r[i:i+1,:])
 
+            print(c_t)
+
             for w_i, w in enumerate(config.ws_test):
 
                 x_gen, x_gen_store = ddpm.transfer(
