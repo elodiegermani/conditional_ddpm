@@ -133,3 +133,61 @@ class DDPM(nn.Module):
         
         x_i_store = np.array(x_i_store)
         return x_i, x_i_store
+
+    def transfer(self, source, c_t, guide_w = 0.0):
+        # we follow the guidance sampling scheme described in 'Classifier-Free Diffusion Guidance'
+        # to make the fwd passes efficient, we concat two versions of the dataset,
+        # one with context_mask=0 and the other context_mask=1
+        # we then mix the outputs with the guidance scale, w
+        # where w>0 means more guidance
+
+        x_i = source.to(self.device)  # x_T ~ N(0, 1), sample initial noise
+        c_t = c_t.to(self.device) # Target class
+
+        # don't drop context at test time
+        context_mask = torch.zeros_like(c_t).to(self.device)
+
+        # double the batch
+        c_t = c_t.repeat(2)
+        context_mask = context_mask.repeat(2)
+        context_mask[n_sample:] = 1.
+
+        x_t_store = [] # keep track of generated steps in case want to plot something 
+
+        for i in range(self.n_T, 0, -1):
+
+            print(f'sampling timestep {i}',end='\r')
+            t_is = torch.tensor([i / self.n_T]).to(self.device)
+            t_is = t_is.repeat(1,1,1,1,1)
+
+            noise = torch.randn_like(x_i)  # eps ~ N(0, 1)
+
+            x_t = (
+                self.sqrtab.to(self.device)[t_is, None, None, None, None] * x_i
+                + self.sqrtmab.to(self.device)[t_is, None, None, None, None] * noise
+            )
+
+            # double batch
+            x_t = x_t.repeat(2,1,1,1,1)
+            t_is = t_is.repeat(2,1,1,1,1)
+
+            z = torch.randn(*x_t.shape).to(self.device) if i > 1 else 0
+
+            # split predictions and compute weighting  
+            ct_vect = nn.functional.one_hot(c_t, num_classes=self.n_classes).to(self.device)    
+
+            eps = self.nn_model(x_t.float(), ct_vect.float(), t_is.float(), context_mask.float())
+            eps1 = eps[:n_sample] # first part (context_mask = 0)
+            eps2 = eps[n_sample:] # second part (context_mask = 1)
+            eps = (1+guide_w)*eps1 - guide_w*eps2 # mix output: context mask off and context mask on
+            x_t = x_t[:n_sample] # Keep half of the samples 
+            x_t = (
+                self.oneover_sqrta[i] * (x_t - eps * self.mab_over_sqrtmab[i])
+                + self.sqrt_beta_t[i] * z
+            ) 
+            
+            if i%20==0 or i==self.n_T or i<8:
+                x_t_store.append(x_t.detach().cpu().numpy())
+        
+        x_t_store = np.array(x_t_store)
+        return x_t, x_t_store

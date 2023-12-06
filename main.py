@@ -250,6 +250,119 @@ def sample(config):
             plt.savefig(f'{config.sample_dir}/test-images_ep{config.test_iter}_w{w}.png')
             plt.close()
 
+def transfer(config):
+    ddpm = DDPM(config)
+    ddpm.load_state_dict(
+        torch.load(
+            config.save_dir + f"/model_{config.test_iter}.pth", 
+            map_location=ddpm.device
+            )
+        )
+
+    # Data loader. 
+    dataset_file = f'{config.data_dir}/valid-{config.dataset}.csv'
+
+    dataset = ClassifDataset(
+        dataset_file, 
+        config.labels)
+
+    print(f'Dataset {config.dataset}: \n {len(dataset)} images.')
+
+
+    source_loader = DataLoader(
+        dataset, 
+        batch_size=1, 
+        shuffle=False, 
+        )
+
+    target_loader = DataLoader(
+        dataset, 
+        batch_size=config.n_classes, 
+        shuffle=False, 
+        )
+
+    x,c = next(iter(source_loader))
+    print(x, c)
+
+    x_r,c_r = next(iter(target_loader))
+    print(x_r, c_r)
+
+    ddpm.eval()
+
+    with torch.no_grad():
+
+        for i in range(config.n_classes):
+
+            c_t = torch.Tensor(1, *c_r[i,:])
+
+            for w_i, w in enumerate(config.ws_test):
+
+                x_gen, x_gen_store = ddpm.transfer(
+                    x, 
+                    c_t, 
+                    guide_w=w
+                    )
+
+                fig,ax = plt.subplots(
+                        nrows=3,
+                        ncols=1,
+                        figsize=(5, 10))
+
+                affine = np.array([[   4.,    0.,    0.,  -98.],
+                                   [   0.,    4.,    0., -134.],
+                                   [   0.,    0.,    4.,  -72.],
+                                   [   0.,    0.,    0.,    1.]])
+
+                img_xgen = nib.Nifti1Image(
+                    np.array(
+                        x_gen.detach().cpu()
+                        )[0,:,:,:], 
+                    affine
+                    )
+
+                img_xreal = nib.Nifti1Image(
+                    np.array(
+                        x_r.detach().cpu()
+                        )[i,:,:,:], 
+                    affine
+                    )
+
+                img_xsrc = nib.Nifti1Image(
+                    np.array(
+                        x.detach().cpu()
+                        )[0,:,:,:], 
+                    affine
+                    )
+
+                plotting.plot_glass_brain(
+                    img_xsrc, 
+                    figure=fig, 
+                    cmap=nilearn_cmaps['cold_hot'], 
+                    plot_abs=False, 
+                    title='Source',
+                    axes=ax[0],
+                    display_mode = 'z')
+
+                plotting.plot_glass_brain(
+                    img_xgen, 
+                    figure=fig, 
+                    cmap=nilearn_cmaps['cold_hot'], 
+                    plot_abs=False, 
+                    title='Generated',
+                    axes=ax[1],
+                    display_mode = 'z')
+
+                plotting.plot_glass_brain(
+                    img_xreal, 
+                    figure=fig, 
+                    cmap=nilearn_cmaps['cold_hot'], 
+                    plot_abs=False, 
+                    title='Target',
+                    axes=ax[2],
+                    display_mode = 'z')
+
+                plt.savefig(f'{config.sample_dir}/test-images_ep{config.test_iter}_w{w}-orig_{c}-target_{c_t}.png')
+                plt.close()
 
         
 if __name__ == "__main__":
@@ -262,7 +375,7 @@ if __name__ == "__main__":
     parser.add_argument('--sample_dir', type=str, default='sampling directory')
     parser.add_argument('--save_dir', type=str, default='save directory')
 
-    parser.add_argument('--mode', type=str, default='train', choices=['train', 'test'])
+    parser.add_argument('--mode', type=str, default='train', choices=['train', 'test', 'transfer'])
     parser.add_argument('--batch_size', type=int, default=32, help='mini-batch size')
     parser.add_argument('--n_epoch', type=int, default=500, help='number of total iterations')
     parser.add_argument('--lrate', type=float, default=1e-4, help='learning rate')
@@ -281,3 +394,6 @@ if __name__ == "__main__":
 
     elif config.mode == 'test':
         sample(config)
+
+    elif config.mode == 'transfer':
+        transfer(config)
