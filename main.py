@@ -318,7 +318,7 @@ def transfer(config):
                     img_xreal = nib.Nifti1Image(
                         np.array(
                             x_r.detach().cpu()
-                            )[i,0,:,:,:], 
+                            )[0,0,:,:,:], 
                         affine
                         )
 
