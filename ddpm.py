@@ -142,6 +142,12 @@ class DDPM(nn.Module):
         # where w>0 means more guidance
 
         x_i = source.to(self.device)  # x_T ~ N(0, 1), sample initial noise
+        noise = torch.randn_like(x_i)  # eps ~ N(0, 1)
+        x_t = (
+            self.sqrtab.to(self.device)[self.n_T] * x_i
+            + self.sqrtmab.to(self.device)[self.n_T] * noise
+        )
+
         c_t = torch.argmax(c_t, dim=1).to(self.device) # Target class
 
         # don't drop context at test time
@@ -151,15 +157,6 @@ class DDPM(nn.Module):
         c_t = c_t.repeat(2)
         context_mask = context_mask.repeat(2)
         context_mask[1:] = 1.
-
-        x_t_store = [] # keep track of generated steps in case want to plot something 
-
-        noise = torch.randn_like(x_i)  # eps ~ N(0, 1)
-
-        x_t = (
-            self.sqrtab.to(self.device)[self.n_T] * x_i
-            + self.sqrtmab.to(self.device)[self.n_T] * noise
-        )
 
         for i in range(self.n_T, 0, -1):
 
@@ -174,7 +171,9 @@ class DDPM(nn.Module):
             z = torch.randn(*x_t.shape).to(self.device) if i > 1 else 0
 
             # split predictions and compute weighting  
-            ct_vect = nn.functional.one_hot(c_t, num_classes=self.n_classes).to(self.device)    
+            ct_vect = nn.functional.one_hot(c_t, num_classes=self.n_classes).to(self.device)  
+
+            print(x_t.shape, ct_vect.shape, t_is.shape, context_mask.shape)  
 
             eps = self.nn_model(x_t.float(), ct_vect.float(), t_is.float(), context_mask.float())
             eps1 = eps[:1] # first part (context_mask = 0)
@@ -185,9 +184,5 @@ class DDPM(nn.Module):
                 self.oneover_sqrta[i] * (x_t - eps * self.mab_over_sqrtmab[i])
                 + self.sqrt_beta_t[i] * z
             ) 
-            
-            # if i%20==0 or i==self.n_T or i<8:
-            #     x_t_store.append(x_t.detach().cpu().numpy())
         
-        #x_t_store = np.array(x_t_store)
-        return x_t#, x_t_store
+        return x_t
