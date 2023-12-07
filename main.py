@@ -288,7 +288,7 @@ def transfer(config):
             for i in range(config.n_classes):
                 x_r, c_r = dataset[n//config.n_classes*config.n_classes+i]
 
-                c_t = torch.Tensor(c_r[i:i+1,:])
+                c_t = torch.Tensor(c_r)
 
                 for w_i, w in enumerate(config.ws_test):
 
