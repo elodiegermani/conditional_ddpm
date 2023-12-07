@@ -141,7 +141,7 @@ class DDPM(nn.Module):
         # we then mix the outputs with the guidance scale, w
         # where w>0 means more guidance
 
-        x_i = source.to(self.device)  # x_T ~ N(0, 1), sample initial noise
+        x_i = source.to(self.device)  # 
         noise = torch.randn_like(x_i)  # eps ~ N(0, 1)
         x_t = (
             self.sqrtab.to(self.device)[self.n_T] * x_i
@@ -179,7 +179,7 @@ class DDPM(nn.Module):
             eps1 = eps[:1] # first part (context_mask = 0)
             eps2 = eps[1:] # second part (context_mask = 1)
             eps = (1+guide_w)*eps1 - guide_w*eps2 # mix output: context mask off and context mask on
-            x_t = x_t[:1] # Keep half of the samples 
+            x_t = x_t[0:1] # Keep half of the samples 
             x_t = (
                 self.oneover_sqrta[i] * (x_t - eps * self.mab_over_sqrtmab[i])
                 + self.sqrt_beta_t[i] * z
