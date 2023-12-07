@@ -173,8 +173,6 @@ class DDPM(nn.Module):
             # split predictions and compute weighting  
             ct_vect = nn.functional.one_hot(c_t, num_classes=self.n_classes).to(self.device)  
 
-            print(x_t.shape, ct_vect.shape, t_is.shape, context_mask.shape)  
-
             eps = self.nn_model(x_t.float(), ct_vect.float(), t_is.float(), context_mask.float())
             eps1 = eps[:1] # first part (context_mask = 0)
             eps2 = eps[1:] # second part (context_mask = 1)
@@ -185,7 +183,5 @@ class DDPM(nn.Module):
                 self.oneover_sqrta[i] * (x_t - eps * self.mab_over_sqrtmab[i])
                 + self.sqrt_beta_t[i] * z
             ) 
-
-            print(x_t.shape)
         
         return x_t
