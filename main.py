@@ -407,6 +407,8 @@ def transfer(config):
                     plt.savefig(f'{config.sample_dir}/test-images_ep{config.test_iter}_w{w}-orig_{c_idx}-target_{c_t_idx}.png')
                     plt.close()
 
+    df_metrics.to_csv(f'{config.sample_dir}/df_metrics.csv')
+
         
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
