@@ -164,11 +164,11 @@ class DDPM(nn.Module):
             t_is = torch.tensor([i / self.n_T]).to(self.device)
             t_is = t_is.repeat(1,1,1,1,1)
 
+            z = torch.randn(*x_t.shape).to(self.device) if i > 1 else 0
+
             # double batch
             x_t = x_t.repeat(2,1,1,1,1)
             t_is = t_is.repeat(2,1,1,1,1)
-
-            z = torch.randn(*x_t.shape).to(self.device) if i > 1 else 0
 
             # split predictions and compute weighting  
             ct_vect = nn.functional.one_hot(c_t, num_classes=self.n_classes).to(self.device)  
@@ -179,7 +179,6 @@ class DDPM(nn.Module):
             eps1 = eps[:1] # first part (context_mask = 0)
             eps2 = eps[1:] # second part (context_mask = 1)
             eps = (1+guide_w)*eps1 - guide_w*eps2 # mix output: context mask off and context mask on
-            print(eps.shape)
             x_t = x_t[0:1] # Keep half of the samples 
 
             x_t = (
