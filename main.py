@@ -286,7 +286,7 @@ def transfer(config):
         with torch.no_grad():
 
             for i in range(config.n_classes):
-                x_r, c_r = dataset[n//n_classes*n_classes+i]
+                x_r, c_r = dataset[n//config.n_classes*config.n_classes+i]
 
                 c_t = torch.Tensor(c_r[i:i+1,:])
 
