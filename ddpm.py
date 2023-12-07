@@ -154,18 +154,18 @@ class DDPM(nn.Module):
 
         x_t_store = [] # keep track of generated steps in case want to plot something 
 
+        noise = torch.randn_like(x_i)  # eps ~ N(0, 1)
+
+        x_t = (
+            self.sqrtab.to(self.device)[self.n_T] * x_i
+            + self.sqrtmab.to(self.device)[self.n_T] * noise
+        )
+
         for i in range(self.n_T, 0, -1):
 
             print(f'sampling timestep {i}',end='\r')
             t_is = torch.tensor([i / self.n_T]).to(self.device)
             t_is = t_is.repeat(1,1,1,1,1)
-
-            noise = torch.randn_like(x_i)  # eps ~ N(0, 1)
-
-            x_t = (
-                self.sqrtab.to(self.device)[i] * x_i
-                + self.sqrtmab.to(self.device)[i] * noise
-            )
 
             # double batch
             x_t = x_t.repeat(2,1,1,1,1)
