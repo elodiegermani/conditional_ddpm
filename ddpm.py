@@ -176,8 +176,11 @@ class DDPM(nn.Module):
             print(x_t.shape, ct_vect.shape, t_is.shape, context_mask.shape)  
 
             eps = self.nn_model(x_t.float(), ct_vect.float(), t_is.float(), context_mask.float())
+            print(eps.shape)
             eps1 = eps[:1] # first part (context_mask = 0)
+            print(eps1.shape)
             eps2 = eps[1:] # second part (context_mask = 1)
+            print(eps2.shape)
             eps = (1+guide_w)*eps1 - guide_w*eps2 # mix output: context mask off and context mask on
             x_t = x_t[0:1] # Keep half of the samples 
 
