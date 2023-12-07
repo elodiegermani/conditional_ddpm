@@ -275,95 +275,99 @@ def transfer(config):
         shuffle=False, 
         )
 
-    target_loader = DataLoader(
-        dataset, 
-        batch_size=config.n_classes, 
-        shuffle=False, 
-        )
+    # x,c = next(iter(source_loader))
 
-    x,c = next(iter(source_loader))
+    # x_r,c_r = next(iter(target_loader))
 
-    x_r,c_r = next(iter(target_loader))
+    for i, (x, c) in enumerate(source_loader):
 
-    ddpm.eval()
+        target_loader = DataLoader(
+            dataset[i%4:i%4+4], 
+            batch_size=config.n_classes, 
+            shuffle=False, 
+            )
 
-    with torch.no_grad():
+        for j, (x_r, c_r) in enumerate(target_loader):
 
-        for i in range(config.n_classes):
+            ddpm.eval()
 
-            c_t = torch.Tensor(c_r[i:i+1,:])
+            with torch.no_grad():
 
-            for w_i, w in enumerate(config.ws_test):
+                for i in range(config.n_classes):
 
-                x_gen = ddpm.transfer(
-                    x, 
-                    c_t, 
-                    guide_w=w
-                    )
+                    c_t = torch.Tensor(c_r[i:i+1,:])
 
-                fig,ax = plt.subplots(
-                        nrows=3,
-                        ncols=1,
-                        figsize=(5, 10))
+                    for w_i, w in enumerate(config.ws_test):
 
-                affine = np.array([[   4.,    0.,    0.,  -98.],
-                                   [   0.,    4.,    0., -134.],
-                                   [   0.,    0.,    4.,  -72.],
-                                   [   0.,    0.,    0.,    1.]])
+                        x_gen = ddpm.transfer(
+                            x, 
+                            c_t, 
+                            guide_w=w
+                            )
 
-                img_xgen = nib.Nifti1Image(
-                    np.array(
-                        x_gen.detach().cpu()
-                        )[0,0,:,:,:], 
-                    affine
-                    )
+                        fig,ax = plt.subplots(
+                                nrows=3,
+                                ncols=1,
+                                figsize=(5, 10))
 
-                img_xreal = nib.Nifti1Image(
-                    np.array(
-                        x_r.detach().cpu()
-                        )[i,0,:,:,:], 
-                    affine
-                    )
+                        affine = np.array([[   4.,    0.,    0.,  -98.],
+                                           [   0.,    4.,    0., -134.],
+                                           [   0.,    0.,    4.,  -72.],
+                                           [   0.,    0.,    0.,    1.]])
 
-                img_xsrc = nib.Nifti1Image(
-                    np.array(
-                        x.detach().cpu()
-                        )[0,0,:,:,:], 
-                    affine
-                    )
+                        img_xgen = nib.Nifti1Image(
+                            np.array(
+                                x_gen.detach().cpu()
+                                )[0,0,:,:,:], 
+                            affine
+                            )
 
-                plotting.plot_glass_brain(
-                    img_xsrc, 
-                    figure=fig, 
-                    cmap=nilearn_cmaps['cold_hot'], 
-                    plot_abs=False, 
-                    title='Source',
-                    axes=ax[0],
-                    display_mode = 'z')
+                        img_xreal = nib.Nifti1Image(
+                            np.array(
+                                x_r.detach().cpu()
+                                )[i,0,:,:,:], 
+                            affine
+                            )
 
-                plotting.plot_glass_brain(
-                    img_xgen, 
-                    figure=fig, 
-                    cmap=nilearn_cmaps['cold_hot'], 
-                    plot_abs=False, 
-                    title='Generated',
-                    axes=ax[1],
-                    display_mode = 'z')
+                        img_xsrc = nib.Nifti1Image(
+                            np.array(
+                                x.detach().cpu()
+                                )[0,0,:,:,:], 
+                            affine
+                            )
 
-                plotting.plot_glass_brain(
-                    img_xreal, 
-                    figure=fig, 
-                    cmap=nilearn_cmaps['cold_hot'], 
-                    plot_abs=False, 
-                    title='Target',
-                    axes=ax[2],
-                    display_mode = 'z')
+                        plotting.plot_glass_brain(
+                            img_xsrc, 
+                            figure=fig, 
+                            cmap=nilearn_cmaps['cold_hot'], 
+                            plot_abs=False, 
+                            title='Source',
+                            axes=ax[0],
+                            display_mode = 'z')
 
-                c_idx = torch.argmax(c, dim=1)[0]
-                c_t_idx = torch.argmax(c_t, dim=1)[0]
+                        plotting.plot_glass_brain(
+                            img_xgen, 
+                            figure=fig, 
+                            cmap=nilearn_cmaps['cold_hot'], 
+                            plot_abs=False, 
+                            title='Generated',
+                            axes=ax[1],
+                            display_mode = 'z')
 
-                plt.savefig(f'{config.sample_dir}/test-images_ep{config.test_iter}_w{w}-orig_{c_idx}-target_{c_t_idx}.png')
-                plt.close()
+                        plotting.plot_glass_brain(
+                            img_xreal, 
+                            figure=fig, 
+                            cmap=nilearn_cmaps['cold_hot'], 
+                            plot_abs=False, 
+                            title='Target',
+                            axes=ax[2],
+                            display_mode = 'z')
+
+                        c_idx = torch.argmax(c, dim=1)[0]
+                        c_t_idx = torch.argmax(c_t, dim=1)[0]
+
+                        plt.savefig(f'{config.sample_dir}/test-images_ep{config.test_iter}_w{w}-orig_{c_idx}-target_{c_t_idx}.png')
+                        plt.close()
 
         
 if __name__ == "__main__":
@@ -385,7 +389,7 @@ if __name__ == "__main__":
     parser.add_argument('--beta', type=tuple, default=(1e-4, 0.02), help='number of classes')
     parser.add_argument('--n_T', type=int, default=500, help='number T')
     parser.add_argument('--drop_prob', type=float, default=0.1, help='probability drop')
-    parser.add_argument('--ws_test', type=list, default=[0.0, 0.5, 2.0], help='weight strengh for sampling')
+    parser.add_argument('--ws_test', type=list, default=[0.0, 2.0, 5.0, 10.0], help='weight strengh for sampling')
     parser.add_argument('--test_iter', type=int, default=10, help='epoch of model to test')
 
     config = parser.parse_args()
