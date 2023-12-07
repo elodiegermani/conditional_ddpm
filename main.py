@@ -11,6 +11,30 @@ import numpy as np
 import nibabel as nib
 from nilearn.plotting.cm import _cmap_d as nilearn_cmaps
 
+def get_correlation(inim, outim):
+        '''
+        Compute the Pearson's correlation coefficient between original and reconstructed images.
+        '''
+        #orig, repro = utils.mask_using_original(inim, outim)
+        
+        data1 = inim.get_fdata().copy()
+        data2 = outim.get_fdata().copy()
+        
+        # Vectorise input data
+        data1 = np.reshape(data1, -1)
+        data2 = np.reshape(data2, -1)
+
+        in_mask_indices = np.logical_not(
+            np.logical_or(
+                np.logical_or(np.isnan(data1), np.absolute(data1) == 0),
+                np.logical_or(np.isnan(data2), np.absolute(data2) == 0)))
+
+        data1 = data1[in_mask_indices]
+        data2 = data2[in_mask_indices]
+        
+        corr_coeff = np.corrcoef(data1, data2)[0][1]
+        
+        return corr_coeff
 
 def train(config):
 
@@ -279,6 +303,10 @@ def transfer(config):
 
     # x_r,c_r = next(iter(target_loader))
 
+    df_metrics = pd.DataFrame(
+            columns = ['orig_label', 'target_label', 'orig-target', 'orig-gen', 'gen-target']
+            )
+
     for n, (x, c) in enumerate(source_loader):
 
         ddpm.eval()
@@ -328,6 +356,23 @@ def transfer(config):
                             )[0,0,:,:,:], 
                         affine
                         )
+
+                    corr_orig_target = get_correlation(img_xsrc, img_xreal)
+                    corr_orig_gen = get_correlation(img_xsrc, img_xgen)
+                    corr_gen_target = get_correlation(img_xgen, img_xreal)
+
+                    df_img = pd.DataFrame({
+                        'orig_label': [c_idx],
+                        'target_label': [c_t_idx],
+                        'orig-target': [corr_orig_target],
+                        'orig-gen': [corr_orig_gen],
+                        'gen-target': [corr_gen_target]
+                        })
+
+                    df_metrics = pd.concat(
+                        [df_metrics, df_img], 
+                        ignore_index=True
+                        ) 
 
                     plotting.plot_glass_brain(
                         img_xsrc, 
