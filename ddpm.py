@@ -180,6 +180,7 @@ class DDPM(nn.Module):
             eps2 = eps[1:] # second part (context_mask = 1)
             eps = (1+guide_w)*eps1 - guide_w*eps2 # mix output: context mask off and context mask on
             x_t = x_t[0:1] # Keep half of the samples 
+            print(x_t.shape)
             x_t = (
                 self.oneover_sqrta[i] * (x_t - eps * self.mab_over_sqrtmab[i])
                 + self.sqrt_beta_t[i] * z
