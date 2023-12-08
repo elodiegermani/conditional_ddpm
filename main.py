@@ -358,22 +358,6 @@ def transfer(config):
                         affine
                         )
 
-                    corr_orig_target = get_correlation(img_xsrc, img_xreal)
-                    corr_orig_gen = get_correlation(img_xsrc, img_xgen)
-                    corr_gen_target = get_correlation(img_xgen, img_xreal)
-
-                    df_img = pd.DataFrame({
-                        'orig_label': [c_idx],
-                        'target_label': [c_t_idx],
-                        'orig-target': [corr_orig_target],
-                        'orig-gen': [corr_orig_gen],
-                        'gen-target': [corr_gen_target]
-                        })
-
-                    df_metrics = pd.concat(
-                        [df_metrics, df_img], 
-                        ignore_index=True
-                        ) 
 
                     plotting.plot_glass_brain(
                         img_xsrc, 
@@ -407,6 +391,23 @@ def transfer(config):
 
                     plt.savefig(f'{config.sample_dir}/test-images_ep{config.test_iter}_w{w}-orig_{c_idx}-target_{c_t_idx}.png')
                     plt.close()
+
+                    corr_orig_target = get_correlation(img_xsrc, img_xreal)
+                    corr_orig_gen = get_correlation(img_xsrc, img_xgen)
+                    corr_gen_target = get_correlation(img_xgen, img_xreal)
+
+                    df_img = pd.DataFrame({
+                        'orig_label': [c_idx],
+                        'target_label': [c_t_idx],
+                        'orig-target': [corr_orig_target],
+                        'orig-gen': [corr_orig_gen],
+                        'gen-target': [corr_gen_target]
+                        })
+
+                    df_metrics = pd.concat(
+                        [df_metrics, df_img], 
+                        ignore_index=True
+                        ) 
 
     df_metrics.to_csv(f'{config.sample_dir}/df_metrics.csv')
 
