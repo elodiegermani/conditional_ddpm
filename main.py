@@ -389,7 +389,7 @@ def transfer(config):
                     c_idx = torch.argmax(c, dim=1)[0]
                     c_t_idx = torch.argmax(c_t, dim=1)[0]
 
-                    plt.savefig(f'{config.sample_dir}/test-images_ep{config.test_iter}_w{w}-orig_{c_idx}-target_{c_t_idx}.png')
+                    plt.savefig(f'{config.sample_dir}/test-image_{n}_ep{config.test_iter}_w{w}-orig_{c_idx}-target_{c_t_idx}.png')
                     plt.close()
 
                     corr_orig_target = get_correlation(img_xsrc, img_xreal)
@@ -409,7 +409,7 @@ def transfer(config):
                         ignore_index=True
                         ) 
 
-    df_metrics.to_csv(f'{config.sample_dir}/df_metrics.csv')
+                    df_metrics.to_csv(f'{config.sample_dir}/df_metrics.csv')
 
         
 if __name__ == "__main__":
@@ -431,7 +431,7 @@ if __name__ == "__main__":
     parser.add_argument('--beta', type=tuple, default=(1e-4, 0.02), help='number of classes')
     parser.add_argument('--n_T', type=int, default=500, help='number T')
     parser.add_argument('--drop_prob', type=float, default=0.1, help='probability drop')
-    parser.add_argument('--ws_test', type=list, default=[0.0, 2.0, 5.0, 10.0], help='weight strengh for sampling')
+    parser.add_argument('--ws_test', type=list, default=[0.0], help='weight strengh for sampling')
     parser.add_argument('--test_iter', type=int, default=10, help='epoch of model to test')
 
     config = parser.parse_args()
