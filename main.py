@@ -358,39 +358,8 @@ def transfer(config):
                         affine
                         )
 
-
-                    plotting.plot_glass_brain(
-                        img_xsrc, 
-                        figure=fig, 
-                        cmap=nilearn_cmaps['cold_hot'], 
-                        plot_abs=False, 
-                        title='Source',
-                        axes=ax[0],
-                        display_mode = 'z')
-
-                    plotting.plot_glass_brain(
-                        img_xgen, 
-                        figure=fig, 
-                        cmap=nilearn_cmaps['cold_hot'], 
-                        plot_abs=False, 
-                        title='Generated',
-                        axes=ax[1],
-                        display_mode = 'z')
-
-                    plotting.plot_glass_brain(
-                        img_xreal, 
-                        figure=fig, 
-                        cmap=nilearn_cmaps['cold_hot'], 
-                        plot_abs=False, 
-                        title='Target',
-                        axes=ax[2],
-                        display_mode = 'z')
-
                     c_idx = torch.argmax(c, dim=1)[0]
                     c_t_idx = torch.argmax(c_t, dim=1)[0]
-
-                    plt.savefig(f'{config.sample_dir}/test-image_{n}_ep{config.test_iter}_w{w}-orig_{c_idx}-target_{c_t_idx}.png')
-                    plt.close()
 
                     corr_orig_target = get_correlation(img_xsrc, img_xreal)
                     corr_orig_gen = get_correlation(img_xsrc, img_xgen)
@@ -410,6 +379,38 @@ def transfer(config):
                         ) 
 
                     df_metrics.to_csv(f'{config.sample_dir}/df_metrics.csv')
+
+                    if n%50==0:
+
+                        plotting.plot_glass_brain(
+                            img_xsrc, 
+                            figure=fig, 
+                            cmap=nilearn_cmaps['cold_hot'], 
+                            plot_abs=False, 
+                            title='Source',
+                            axes=ax[0],
+                            display_mode = 'z')
+
+                        plotting.plot_glass_brain(
+                            img_xgen, 
+                            figure=fig, 
+                            cmap=nilearn_cmaps['cold_hot'], 
+                            plot_abs=False, 
+                            title='Generated',
+                            axes=ax[1],
+                            display_mode = 'z')
+
+                        plotting.plot_glass_brain(
+                            img_xreal, 
+                            figure=fig, 
+                            cmap=nilearn_cmaps['cold_hot'], 
+                            plot_abs=False, 
+                            title='Target',
+                            axes=ax[2],
+                            display_mode = 'z')
+
+                        plt.savefig(f'{config.sample_dir}/test-image_{n}_ep{config.test_iter}_w{w}-orig_{c_idx}-target_{c_t_idx}.png')
+                        plt.close()
 
         
 if __name__ == "__main__":
