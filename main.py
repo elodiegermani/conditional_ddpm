@@ -8,6 +8,7 @@ from ddpm import DDPM
 import matplotlib.pyplot as plt 
 from nilearn import plotting
 import numpy as np 
+import pandas as pd
 import nibabel as nib
 from nilearn.plotting.cm import _cmap_d as nilearn_cmaps
 
