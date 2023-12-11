@@ -159,7 +159,7 @@ def train(config):
                             figure=fig, 
                             cmap=nilearn_cmaps['cold_hot'], 
                             plot_abs=False, 
-                            title='Generated',
+                            title='Generated ',
                             axes=ax[0, n],
                             display_mode = 'z')
 
@@ -378,7 +378,7 @@ def transfer(config):
                         ignore_index=True
                         ) 
 
-                    df_metrics.to_csv(f'{config.sample_dir}/df_metrics.csv')
+                    df_metrics.to_csv(f'{config.sample_dir}/df_metrics-{config.dataset}-w{w}.csv')
 
                     if n%50==0:
 
@@ -387,7 +387,7 @@ def transfer(config):
                             figure=fig, 
                             cmap=nilearn_cmaps['cold_hot'], 
                             plot_abs=False, 
-                            title='Source',
+                            title=f'Original, classe {dataset.label_list[c_idx]}',
                             axes=ax[0],
                             display_mode = 'z')
 
@@ -396,7 +396,7 @@ def transfer(config):
                             figure=fig, 
                             cmap=nilearn_cmaps['cold_hot'], 
                             plot_abs=False, 
-                            title='Generated',
+                            title=f'Generated, classe {dataset.label_list[c_t_idx]}',
                             axes=ax[1],
                             display_mode = 'z')
 
@@ -405,11 +405,11 @@ def transfer(config):
                             figure=fig, 
                             cmap=nilearn_cmaps['cold_hot'], 
                             plot_abs=False, 
-                            title='Target',
+                            title=f'Target, classe {dataset.label_list[c_t_idx]}',
                             axes=ax[2],
                             display_mode = 'z')
 
-                        plt.savefig(f'{config.sample_dir}/test-image_{n}_ep{config.test_iter}_w{w}-orig_{c_idx}-target_{c_t_idx}.png')
+                        plt.savefig(f'{config.sample_dir}/test-image_{n}-{config.dataset}_ep{config.test_iter}_w{w}-orig_{c_idx}-target_{c_t_idx}.png')
                         plt.close()
 
         
@@ -432,7 +432,7 @@ if __name__ == "__main__":
     parser.add_argument('--beta', type=tuple, default=(1e-4, 0.02), help='number of classes')
     parser.add_argument('--n_T', type=int, default=500, help='number T')
     parser.add_argument('--drop_prob', type=float, default=0.1, help='probability drop')
-    parser.add_argument('--ws_test', type=list, default=[0.0], help='weight strengh for sampling')
+    parser.add_argument('--ws_test', type=list, default=[0.0, 2.0], help='weight strengh for sampling')
     parser.add_argument('--test_iter', type=int, default=10, help='epoch of model to test')
 
     config = parser.parse_args()
