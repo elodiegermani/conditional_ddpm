@@ -6,9 +6,10 @@
 #SBATCH --cpus-per-task=16           # number of cores per tasks
 #SBATCH --hint=nomultithread         # we get physical cores not logical
 #SBATCH --distribution=block:block   # we pin the tasks on contiguous cores
-#SBATCH --time=20:00:00              # maximum execution time (HH:MM:SS)
+#SBATCH --time=48:00:00              # maximum execution time (HH:MM:SS)
 #SBATCH --output=ddpm%j.out # output file name
 #SBATCH --error=ddpm%j.err  # error file name
+#SBATCH --qos=qos_gpu-t4
 
 source /gpfswork/rech/gft/umh25bv/miniconda3/bin/activate /gpfswork/rech/gft/umh25bv/miniconda3/envs/workEnv
 
