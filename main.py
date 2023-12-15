@@ -373,6 +373,10 @@ def transfer(config):
                         affine
                         )
 
+                    nib.save(img_xgen, f'{config.sample_dir}/gen-image_{n}-{config.dataset}_ep{config.test_iter}_w{w}-orig_{c_idx}-target_{c_t_idx}.nii.gz')
+                    nib.save(img_xreal, f'{config.sample_dir}/trg-image_{n}-{config.dataset}_ep{config.test_iter}_w{w}-orig_{c_idx}-target_{c_t_idx}.nii.gz')
+                    nib.save(img_xsrc, f'{config.sample_dir}/src-image_{n}-{config.dataset}_ep{config.test_iter}_w{w}-orig_{c_idx}-target_{c_t_idx}.nii.gz')
+
                     c_idx = torch.argmax(c, dim=1)[0]
                     c_t_idx = torch.argmax(c_t, dim=1)[0]
 
@@ -383,7 +387,6 @@ def transfer(config):
                     classe_orig = class_change(x)
                     classe_target = class_change(x_r)
                     classe_gen = class_change(x_gen)
-
 
                     df_img = pd.DataFrame({
                         'orig_label': [c_idx],
@@ -405,37 +408,37 @@ def transfer(config):
 
                     df_metrics.to_csv(f'{config.sample_dir}/df_metrics-{config.dataset}-w{w}.csv')
 
-                    if n%50==0:
+                    # if n%50==0:
 
-                        plotting.plot_glass_brain(
-                            img_xsrc, 
-                            figure=fig, 
-                            cmap=nilearn_cmaps['cold_hot'], 
-                            plot_abs=False, 
-                            title=f'Original, classe {dataset.label_list[c_idx]}',
-                            axes=ax[0],
-                            display_mode = 'z')
+                    #     plotting.plot_glass_brain(
+                    #         img_xsrc, 
+                    #         figure=fig, 
+                    #         cmap=nilearn_cmaps['cold_hot'], 
+                    #         plot_abs=False, 
+                    #         title=f'Original, classe {dataset.label_list[c_idx]}',
+                    #         axes=ax[0],
+                    #         display_mode = 'z')
 
-                        plotting.plot_glass_brain(
-                            img_xgen, 
-                            figure=fig, 
-                            cmap=nilearn_cmaps['cold_hot'], 
-                            plot_abs=False, 
-                            title=f'Generated, classe {dataset.label_list[c_t_idx]}',
-                            axes=ax[1],
-                            display_mode = 'z')
+                    #     plotting.plot_glass_brain(
+                    #         img_xgen, 
+                    #         figure=fig, 
+                    #         cmap=nilearn_cmaps['cold_hot'], 
+                    #         plot_abs=False, 
+                    #         title=f'Generated, classe {dataset.label_list[c_t_idx]}',
+                    #         axes=ax[1],
+                    #         display_mode = 'z')
 
-                        plotting.plot_glass_brain(
-                            img_xreal, 
-                            figure=fig, 
-                            cmap=nilearn_cmaps['cold_hot'], 
-                            plot_abs=False, 
-                            title=f'Target, classe {dataset.label_list[c_t_idx]}',
-                            axes=ax[2],
-                            display_mode = 'z')
+                    #     plotting.plot_glass_brain(
+                    #         img_xreal, 
+                    #         figure=fig, 
+                    #         cmap=nilearn_cmaps['cold_hot'], 
+                    #         plot_abs=False, 
+                    #         title=f'Target, classe {dataset.label_list[c_t_idx]}',
+                    #         axes=ax[2],
+                    #         display_mode = 'z')
 
-                        plt.savefig(f'{config.sample_dir}/test-image_{n}-{config.dataset}_ep{config.test_iter}_w{w}-orig_{c_idx}-target_{c_t_idx}.png')
-                        plt.close()
+                    #     plt.savefig(f'{config.sample_dir}/test-image_{n}-{config.dataset}_ep{config.test_iter}_w{w}-orig_{c_idx}-target_{c_t_idx}.png')
+                    #     plt.close()
 
         
 if __name__ == "__main__":
