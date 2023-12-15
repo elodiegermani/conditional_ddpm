@@ -11,6 +11,8 @@ import numpy as np
 import pandas as pd
 import nibabel as nib
 from nilearn.plotting.cm import _cmap_d as nilearn_cmaps
+import sys 
+sys.path.insert(0, '../pipeline_classification/src')
 
 def get_correlation(inim, outim):
         '''
@@ -36,6 +38,19 @@ def get_correlation(inim, outim):
         corr_coeff = np.corrcoef(data1, data2)[0][1]
         
         return corr_coeff
+
+def class_change(model_param, image):
+    package = 'lib.model'
+    md = importlib.import_module(package)
+
+    model = torch.load(model_param, map_location="cpu")
+    
+    if len(image.shape) == 4:
+        image= image.unsqueeze(0)
+        
+    classe = torch.max(model(image.float().cpu()), 1)[1]
+
+    return(classe)
 
 def train(config):
 
@@ -365,18 +380,28 @@ def transfer(config):
                     corr_orig_gen = get_correlation(img_xsrc, img_xgen)
                     corr_gen_target = get_correlation(img_xgen, img_xreal)
 
+                    classe_orig = class_change(x)
+                    classe_target = class_change(x_r)
+                    classe_gen = class_change(x_gen)
+
+
                     df_img = pd.DataFrame({
                         'orig_label': [c_idx],
                         'target_label': [c_t_idx],
                         'orig-target': [corr_orig_target],
                         'orig-gen': [corr_orig_gen],
-                        'gen-target': [corr_gen_target]
+                        'gen-target': [corr_gen_target],
+                        'gen_pred':[classe_gen],
+                        'orig_pred':[classe_orig],
+                        'target_pred':[classe_target]
                         })
 
                     df_metrics = pd.concat(
                         [df_metrics, df_img], 
                         ignore_index=True
                         ) 
+
+                    print(df_metrics)
 
                     df_metrics.to_csv(f'{config.sample_dir}/df_metrics-{config.dataset}-w{w}.csv')
 
