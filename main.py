@@ -11,6 +11,7 @@ import numpy as np
 import pandas as pd
 import nibabel as nib
 from nilearn.plotting.cm import _cmap_d as nilearn_cmaps
+import importlib
 import sys 
 sys.path.insert(0, '../pipeline_classification/src')
 
