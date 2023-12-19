@@ -373,22 +373,23 @@ def transfer(config):
                         affine
                         )
 
+                    c_idx = torch.argmax(c, dim=1)[0]
+                    c_t_idx = torch.argmax(c_t, dim=1)[0]
+
                     if n % 50 == 0:
 
                         nib.save(img_xgen, f'{config.sample_dir}/gen-image_{n}-{config.dataset}_ep{config.test_iter}_w{w}-orig_{c_idx}-target_{c_t_idx}.nii.gz')
                         nib.save(img_xreal, f'{config.sample_dir}/trg-image_{n}-{config.dataset}_ep{config.test_iter}_w{w}-orig_{c_idx}-target_{c_t_idx}.nii.gz')
                         nib.save(img_xsrc, f'{config.sample_dir}/src-image_{n}-{config.dataset}_ep{config.test_iter}_w{w}-orig_{c_idx}-target_{c_t_idx}.nii.gz')
 
-                    c_idx = torch.argmax(c, dim=1)[0]
-                    c_t_idx = torch.argmax(c_t, dim=1)[0]
 
                     corr_orig_target = get_correlation(img_xsrc, img_xreal)
                     corr_orig_gen = get_correlation(img_xsrc, img_xgen)
                     corr_gen_target = get_correlation(img_xgen, img_xreal)
 
-                    classe_orig = class_change(x)
-                    classe_target = class_change(x_r)
-                    classe_gen = class_change(x_gen)
+                    classe_orig = class_change(config.model_param, x)
+                    classe_target = class_change(config.model_param, x_r)
+                    classe_gen = class_change(config.model_param, x_gen)
 
                     df_img = pd.DataFrame({
                         'orig_label': [c_idx],
@@ -464,6 +465,8 @@ if __name__ == "__main__":
     parser.add_argument('--drop_prob', type=float, default=0.1, help='probability drop')
     parser.add_argument('--ws_test', type=list, default=[0.0, 2.0], help='weight strengh for sampling')
     parser.add_argument('--test_iter', type=int, default=10, help='epoch of model to test')
+    parser.add_argument('--model_param', type=str, default='../pipeline_classification/data/derived/model_b-64_lr-1e-04_epochs_100.pt', 
+        help='epoch of model to test')
 
     config = parser.parse_args()
 
