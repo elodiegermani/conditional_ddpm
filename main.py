@@ -321,7 +321,7 @@ def transfer(config):
     # x_r,c_r = next(iter(target_loader))
 
     df_metrics = pd.DataFrame(
-            columns = ['orig_label', 'target_label', 'orig-target', 'orig-gen', 'gen-target']
+            columns = ['orig_label', 'target_label', 'orig-target', 'orig-gen', 'gen-target', 'w']
             )
 
     for n, (x, c) in enumerate(source_loader):
@@ -400,7 +400,8 @@ def transfer(config):
                         'gen-target': [corr_gen_target],
                         'gen_pred':[classe_gen],
                         'orig_pred':[classe_orig],
-                        'target_pred':[classe_target]
+                        'target_pred':[classe_target],
+                        'w':[w]
                         })
 
                     df_metrics = pd.concat(
@@ -410,7 +411,7 @@ def transfer(config):
 
                     print(df_metrics)
 
-                    df_metrics.to_csv(f'{config.sample_dir}/df_metrics-{config.dataset}-w{w}.csv')
+                    df_metrics.to_csv(f'{config.sample_dir}/df_metrics-{config.dataset}.csv')
 
                     # if n%50==0:
 
