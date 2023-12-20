@@ -464,7 +464,7 @@ if __name__ == "__main__":
     parser.add_argument('--beta', type=tuple, default=(1e-4, 0.02), help='number of classes')
     parser.add_argument('--n_T', type=int, default=500, help='number T')
     parser.add_argument('--drop_prob', type=float, default=0.1, help='probability drop')
-    parser.add_argument('--ws_test', type=list, default=[0.0, 2.0], help='weight strengh for sampling')
+    parser.add_argument('--ws_test', type=list, default=[0.5, 1.0], help='weight strengh for sampling')
     parser.add_argument('--test_iter', type=int, default=10, help='epoch of model to test')
     parser.add_argument('--model_param', type=str, default='../pipeline_classification/data/derived/model_b-64_lr-1e-04_epochs_100.pt', 
         help='epoch of model to test')
