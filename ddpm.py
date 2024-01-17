@@ -10,6 +10,7 @@ import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation, PillowWriter
 import numpy as np
 from model import ContextUnet
+import random
 
 def ddpm_schedules(beta1, beta2, T):
     """
@@ -77,9 +78,36 @@ class DDPM(nn.Module):
         # dropout context with some probability
         ## context_mask = tensor of size n. image with 0/1 if drop context.
         context_mask = torch.bernoulli(torch.zeros_like(torch.argmax(c, dim=1))+self.drop_prob).to(self.device)
+
+        c_bis = torch.zeros_like(c)
+        c_bis_val = random.sample(range(c_bis.shape[1]),c_bis.shape[0])
+
+        for i in range(c_bis.shape[0]):
+            c_bis[i, c_bis_val[i]] = 1
         
         # return MSE between added noise, and our predicted noise
-        return self.loss_mse(noise, self.nn_model(x_t, c, _ts / self.n_T, context_mask))
+        x_c = self.nn_model(x_t, c, _ts / self.n_T, context_mask)
+        loss_mse =  self.loss_mse(noise, x_i)
+
+
+        # cyclic-loss
+        # predict noise of noisy image + other condition
+        x_cbis = self.nn_model(x_t, c_bis, _ts / self.n_T, context_mask)
+
+        # add this noise to original image
+        x_tbis = (
+            self.sqrtab.to(self.device)[_ts, None, None, None, None] * x
+            + self.sqrtmab.to(self.device)[_ts, None, None, None, None] * x_cbis
+        )
+
+        # learn to denoise with real condition
+        x_cbis_c = self.nn_model(x_tbis, c, _ts / self.n_T, context_mask)
+        
+        loss_cycle = self.loss_mse(noise, x_cbis_c)
+
+        loss = loss_mse + loss_cycle 
+    
+        return loss
 
     def sample(self, n_sample, size, guide_w = 0.0):
         # we follow the guidance sampling scheme described in 'Classifier-Free Diffusion Guidance'
